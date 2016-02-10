@@ -7,9 +7,11 @@
     <param name="camera_frame_id" value="usb_cam" />
     <param name="io_method" value="mmap"/>
   </node>
-  <node name="color_filter" pkg="motion_tracking" type="color_filter" output="screen" />
+  <node name="color_filter" pkg="common_cv" type="color_filter" output="screen" />
+  <!--
   <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
     <remap from="image" to="/color_filtered"/>
     <param name="autosize" value="true" />
   </node>
+  -->
 </launch>
