@@ -121,6 +121,18 @@ target_link_libraries(color_filter
   ${catkin_LIBRARIES}
 )
 
+add_executable(odroid_pub src/pub_maker.cpp)
+add_dependencies(odroid_pub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})  #the_pub_generate_messages_cpp
+target_link_libraries(odroid_pub
+  ${catkin_LIBRARIES}
+)
+
+add_executable(rviz_pos_pub src/rviz_pos_test.cpp)
+add_dependencies(rviz_pos_pub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(rviz_pos_pub
+  ${catkin_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############
