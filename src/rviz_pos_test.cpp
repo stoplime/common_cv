@@ -5,6 +5,7 @@
 #include <string> 
 #include <iostream>
 #include <vector>
+#include "nav_msgs/Odometry.h"
 
 using namespace std;
 
@@ -18,7 +19,8 @@ namespace patch
     }
 }
 
-vector<float> pos(3,0);
+//vector<float> pos(3,0);
+geometry_msgs::Point pos;
 const float speed = 1;
 
 void keyboard_callback(const keyboard::Key& msg)
@@ -27,22 +29,22 @@ void keyboard_callback(const keyboard::Key& msg)
 	switch (value)
 	{
 		case 119:
-			pos[0]+=speed;
+			pos.x+=speed;
 			break;
 		case 115:
-			pos[0]-=speed;
+			pos.x-=speed;
 			break;
 		case 97:
-			pos[1]-=speed;
+			pos.y-=speed;
 			break;
 		case 100:
-			pos[1]+=speed;
+			pos.y+=speed;
 			break;
 		case 32:
-			pos[2]+=speed;
+			pos.z+=speed;
 			break;
 		case 304:
-			pos[2]-=speed;
+			pos.z-=speed;
 			break;
 		//default:
 			
@@ -52,11 +54,11 @@ void keyboard_callback(const keyboard::Key& msg)
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "odroid_pub");
+	ros::init(argc, argv, "odroid_send_pos");
 	
 	ros::NodeHandle n;
 	
-	ros::Publisher odroid_pub = n.advertise<std_msgs::String>("publisher", 1);
+	ros::Publisher odroid_pub = n.advertise<nav_msgs::Odometry>("pose", 1);
 	ros::Subscriber keyboard_input = n.subscribe("/keyboard/keydown", 1, keyboard_callback);
 	
 	ros::Rate looprate(10);
@@ -65,10 +67,11 @@ int main(int argc, char **argv)
 	while(ros::ok())
 	{
 		std_msgs::String msg;
-		string s = "Pos: "+patch::to_string(pos[0])+", "+patch::to_string(pos[1])+", "+patch::to_string(pos[2]);
+		string s = "Pos: "+patch::to_string(pos.x)+", "+patch::to_string(pos.y)+", "+patch::to_string(pos.z);
 		
-		msg.data = s;
-		odroid_pub.publish(msg);
+		nav_msgs::Odometry pose;
+		pose.pose.pose.position = pos;
+		odroid_pub.publish(pose);
 		cout << s << endl;
 		
 		ros::spinOnce();

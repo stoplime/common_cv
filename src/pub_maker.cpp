@@ -18,7 +18,7 @@ namespace patch
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "odroid_pub");
+	ros::init(argc, argv, "odroid_pub_test");
 	
 	ros::NodeHandle n;
 	
