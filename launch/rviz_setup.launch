@@ -1,0 +1,12 @@
+<launch>
+  <node name="keyboard" pkg="keyboard" type="keyboard" />
+  <node name="rviz" pkg="rviz" type="rviz" />
+  <node name="rviz_odroid" pkg="common_cv" type="rviz_pos_pub" output="screen" />
+  
+  <!--
+  <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/color_filtered"/>
+    <param name="autosize" value="true" />
+  </node>
+  -->
+</launch>
