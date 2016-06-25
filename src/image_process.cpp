@@ -17,12 +17,15 @@ namespace enc = sensor_msgs::image_encodings;
 image_transport::Publisher image_pub;
 static const char WINDOW[] = "Image Unprocessed";
 static const char WINDOW2[] = "Image Processed";
-Scalar minRange = Scalar(200,200,200);
-Scalar maxRange = Scalar(255,255,255);
+static const char WINDOW_RANGE[] = "Color Range";
+vector<int> minRange;
+vector<int> maxRange;
 Point test_point = Point(0,0);
 Point prev_point = test_point;
 int rangeSlider = 25;
 Mat current_frame;
+
+static void on_trackbar(int, void*);
 
 static void update_process()
 {
@@ -30,12 +33,20 @@ static void update_process()
 	{
 		prev_point = test_point;
 		
-		Scalar temp;
-		Scalar radius = Scalar(rangeSlider,rangeSlider,rangeSlider);
-		
-		temp = Scalar(current_frame.at<Vec3b>(test_point));
-		minRange = temp-radius;
-		maxRange = temp+radius;
+		Vec3b temp(current_frame.at<Vec3b>(test_point));
+		minRange[0] = temp.val[0]-rangeSlider;
+		minRange[1] = temp.val[1]-rangeSlider;
+		minRange[2] = temp.val[2]-rangeSlider;
+		maxRange[0] = temp.val[0]+rangeSlider;
+		maxRange[1] = temp.val[1]+rangeSlider;
+		maxRange[2] = temp.val[2]+rangeSlider;
+		//updateWindow(WINDOW_RANGE);
+		createTrackbar("minRangeB", WINDOW_RANGE, &minRange[0], 255, on_trackbar);
+		createTrackbar("minRangeG", WINDOW_RANGE, &minRange[1], 255, on_trackbar);
+		createTrackbar("minRangeR", WINDOW_RANGE, &minRange[2], 255, on_trackbar);
+		createTrackbar("maxRangeB", WINDOW_RANGE, &maxRange[0], 255, on_trackbar);
+		createTrackbar("maxRangeG", WINDOW_RANGE, &maxRange[1], 255, on_trackbar);
+		createTrackbar("maxRangeR", WINDOW_RANGE, &maxRange[2], 255, on_trackbar);
 	}
 }
 
@@ -62,6 +73,8 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
     
     current_frame = cv_ptr->image;
     
+    cvtColor(current_frame, current_frame, CV_BGR2Luv);
+    
     // set click
     update_process();
 	
@@ -79,11 +92,13 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
     
 	image_pub.publish(out_msg.toImageMsg());
 	//cout << "Published" << endl;
+	cout << "minRange:" << minRange[0] << ", "<< minRange[1] << ", "<< minRange[2] << endl;
+	cout << "maxRange:" << maxRange[0] << ", "<< maxRange[1] << ", "<< maxRange[2] << endl;
 	
 	//reset current_frame
 	current_frame = cv_ptr->image;
 	
-	waitKey(10);
+	waitKey(10);//*/
 }
 
 static void onMouse( int event, int x, int y, int, void* )
@@ -98,13 +113,28 @@ int main (int argc, char **argv)
 {
 	//Mat img;
 	
+	minRange.push_back(63);
+	minRange.push_back(113);
+	minRange.push_back(0);
+
+	maxRange.push_back(148);
+	maxRange.push_back(209);
+	maxRange.push_back(86);
+	
 	ros::init(argc, argv, "processed_image");
 	
 	ros::NodeHandle n;
 	namedWindow(WINDOW);
 	namedWindow(WINDOW2);
+	namedWindow(WINDOW_RANGE);
 	
 	createTrackbar("Range", WINDOW, &rangeSlider, 255, on_trackbar);
+	createTrackbar("minRangeB", WINDOW_RANGE, &minRange[0], 255, on_trackbar);
+	createTrackbar("minRangeG", WINDOW_RANGE, &minRange[1], 255, on_trackbar);
+	createTrackbar("minRangeR", WINDOW_RANGE, &minRange[2], 255, on_trackbar);
+	createTrackbar("maxRangeB", WINDOW_RANGE, &maxRange[0], 255, on_trackbar);
+	createTrackbar("maxRangeG", WINDOW_RANGE, &maxRange[1], 255, on_trackbar);
+	createTrackbar("maxRangeR", WINDOW_RANGE, &maxRange[2], 255, on_trackbar);
 	on_trackbar(rangeSlider, 0);
 	
 	setMouseCallback(WINDOW, onMouse, 0);
